@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Gestione Pause Team - RL Green (Autenticazione Gist)</title>
-    <!-- Font/Icone -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -185,7 +184,6 @@
 </head>
 <body>
 
-    <!-- Authentication Modal -->
     <div id="auth-modal" class="auth-modal">
         <div class="auth-modal-content">
             <h3><i class="fas fa-shield-alt"></i> Autenticazione Richiesta</h3>
@@ -212,7 +210,6 @@
         </div>
     </div>
 
-    <!-- Main Application Container (Initially Hidden) -->
     <div id="main-app-container">
         <div class="header-area">
             <h1>Gestione Pause</h1>
@@ -255,11 +252,11 @@
                        <label for="modal-operatore"><i class="fas fa-user"></i> Nome e Cognome:</label>
                        <select id="modal-operatore" name="operatore" required>
                             <option value="" disabled selected>-- Seleziona Operatore --</option>
+                            <option>Caruso Stefania</option>
                             <option>Del Tevere Giuseppe</option>
                             <option>Furnari Alfredo</option>
                             <option>Gamiddo Marialorenza</option>
                             <option>Giuffrida Giusi</option>
-                            <option>Giuffrida Martina</option>
                             <option>Leocata Rita</option>
                             <option>Lo Cicero Laura</option>
                             <option>Mangani Federica</option>
@@ -315,7 +312,7 @@
         let serverSyncIntervalId;
 
         const PAUSE_DURATIONS = { prima_pausa: 15, seconda_pausa: 15, pausa_pranzo: 60, terza_pausa: 15 };
-        const OPERATOR_ICONS = { "Del Tevere Giuseppe": "fas fa-coffee", "Furnari Alfredo": "fas fa-laptop-code", "Gamiddo Marialorenza": "fas fa-apple-whole", "Giuffrida Giusi": "fas fa-pencil-alt", "Giuffrida Martina": "fas fa-star", "Leocata Rita": "fas fa-heart", "Lo Cicero Laura": "fas fa-leaf", "Mangani Federica": "fas fa-sun", "Mazzaglia Cinzia": "fas fa-moon", "Paparo Tiziana": "fas fa-headphones", "Perri Marilisa": "fas fa-gamepad", "Romano Roberta": "fas fa-book-open", "Venuto Mariannunziata": "fas fa-paper-plane", "default": "fas fa-user-clock" };
+        const OPERATOR_ICONS = { "Caruso Stefania": "fas fa-star", "Del Tevere Giuseppe": "fas fa-coffee", "Furnari Alfredo": "fas fa-laptop-code", "Gamiddo Marialorenza": "fas fa-apple-whole", "Giuffrida Giusi": "fas fa-pencil-alt", "Leocata Rita": "fas fa-heart", "Lo Cicero Laura": "fas fa-leaf", "Mangani Federica": "fas fa-sun", "Mazzaglia Cinzia": "fas fa-moon", "Paparo Tiziana": "fas fa-headphones", "Perri Marilisa": "fas fa-gamepad", "Romano Roberta": "fas fa-book-open", "Venuto Mariannunziata": "fas fa-paper-plane", "default": "fas fa-user-clock" };
 
         // --- Gist Data Functions ---
         async function loadDataFromGist() {

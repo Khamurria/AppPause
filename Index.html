@@ -1,0 +1,590 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Gestione Pause - RL Green</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer" />
+<style>
+:root{
+  --green:#008C45; --green-d:#007A3D; --green-l:#00A54F; --green-50:#E6F4EC; --green-100:#CDEAD9;
+  --ink:#1F2A30; --ink-2:#54646E; --ink-3:#8A98A0;
+  --bg:#F4F7F5; --card:#FFFFFF; --line:#E5E9E7; --line-2:#D4DAD7;
+  --warn-bg:#FFF4E0; --warn:#A9690A; --warn-line:#F0CF93;
+  --danger-bg:#FDECEA; --danger:#C0392B; --danger-line:#F1B7B0;
+  --info-bg:#E8F1FC; --info:#1559B0;
+  --s-prima-bg:#E2F3E9; --s-prima:#0C6B39; --s-prima-l:#9AD4B3;
+  --s-seconda-bg:#E6F0FB; --s-seconda:#15539E; --s-seconda-l:#A9C9EF;
+  --s-pranzo-bg:#FCEFD9; --s-pranzo:#9A6206; --s-pranzo-l:#F0CF93;
+  --s-terza-bg:#F0E7F7; --s-terza:#6A1B9A; --s-terza-l:#D3BCE6;
+  --r:10px; --r-s:7px; --r-l:14px;
+  --font:'Poppins',system-ui,sans-serif;
+  --sh:0 2px 6px rgba(18,40,30,.06); --sh-2:0 6px 18px rgba(18,40,30,.10);
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--font);background:var(--bg);color:var(--ink);line-height:1.55;font-weight:400;padding:22px 16px 60px}
+.wrap{max-width:1120px;margin:0 auto}
+a{color:var(--green-d)}
+
+.auth-modal{display:flex;position:fixed;inset:0;z-index:2000;overflow:auto;background:rgba(20,34,28,.78);backdrop-filter:blur(5px);align-items:center;justify-content:center;padding:18px}
+.auth-card{background:var(--card);padding:34px 34px;border-radius:var(--r-l);width:100%;max-width:500px;box-shadow:var(--sh-2)}
+.auth-card h3{color:var(--green-d);font-size:1.5em;text-align:center;font-weight:600;margin-bottom:8px}
+.auth-card .sub{text-align:center;color:var(--ink-2);font-size:.86em;margin-bottom:22px;line-height:1.5}
+.auth-card label{display:block;margin-bottom:7px;font-weight:500;font-size:.92em}
+.auth-card input{width:100%;padding:13px 15px;margin-bottom:18px;border:1px solid var(--line-2);border-radius:var(--r-s);font:inherit;font-size:.96em}
+.auth-card input:focus{outline:none;border-color:var(--green);box-shadow:0 0 0 3px rgba(0,140,69,.15)}
+
+#app{display:none}
+
+.topbar{display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;margin-bottom:20px}
+.brand{display:flex;align-items:center;gap:12px}
+.brand .logo{width:44px;height:44px;border-radius:12px;background:linear-gradient(135deg,var(--green),var(--green-l));color:#fff;display:flex;align-items:center;justify-content:center;font-size:1.25em;box-shadow:var(--sh)}
+.brand h1{font-size:1.4em;font-weight:700;letter-spacing:-.5px;line-height:1.1}
+.brand .tag{font-size:.74em;color:var(--ink-3);font-weight:500;letter-spacing:.04em;text-transform:uppercase}
+.topbar-r{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+#clock{font-size:.92em;color:var(--ink-2);font-weight:500;background:var(--card);padding:9px 14px;border-radius:var(--r-s);box-shadow:var(--sh);white-space:nowrap;font-variant-numeric:tabular-nums;font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,"Liberation Mono",monospace;min-width:120px;text-align:center}
+#clock i{color:var(--green)}
+
+.btn{padding:11px 18px;border:none;border-radius:var(--r);cursor:pointer;font-family:var(--font);font-weight:600;font-size:.94em;transition:transform .15s,box-shadow .15s,background .2s;display:inline-flex;align-items:center;gap:9px}
+.btn:hover{transform:translateY(-1px)}
+.btn-primary{background:var(--green);color:#fff;box-shadow:var(--sh)}
+.btn-primary:hover{background:var(--green-d);box-shadow:var(--sh-2)}
+.btn-ghost{background:var(--card);color:var(--ink-2);border:1px solid var(--line-2)}
+.btn-ghost:hover{background:#f7f9f8}
+
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:13px;margin-bottom:18px}
+.kpi{background:var(--card);border:1.5px solid #14181B;border-radius:var(--r);padding:15px 17px}
+.kpi .k-l{font-size:.78em;color:var(--ink-2);font-weight:500;text-transform:uppercase;letter-spacing:.04em;margin-bottom:6px}
+.kpi .k-v{font-size:1.85em;font-weight:700;line-height:1;color:var(--ink)}
+.kpi .k-s{font-size:.78em;color:var(--ink-3);margin-top:4px}
+.kpi.warn .k-v{color:var(--warn)} .kpi.danger .k-v{color:var(--danger)}
+
+.alerts{display:flex;flex-direction:column;gap:9px;margin-bottom:22px}
+.alert{display:flex;align-items:flex-start;gap:11px;padding:12px 15px;border-radius:var(--r);font-size:.9em;font-weight:500;line-height:1.4}
+.alert i{font-size:1.05em;margin-top:1px;flex-shrink:0}
+.alert.ok{background:var(--green-50);color:var(--green-d)}
+.alert.warn{background:var(--warn-bg);color:var(--warn)}
+.alert.danger{background:var(--danger-bg);color:var(--danger)}
+
+.section{background:var(--card);border-radius:var(--r-l);box-shadow:var(--sh);padding:20px 22px;margin-bottom:20px}
+.section-head{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:16px}
+.section-head h2{font-size:1.12em;font-weight:600;display:flex;align-items:center;gap:9px}
+.section-head h2 i{color:var(--green)}
+.muted{color:var(--ink-3);font-size:.85em;font-weight:500}
+
+.tl-scroll{overflow-x:auto;padding-bottom:6px}
+.tl{min-width:620px}
+.tl-axis{display:flex;position:relative;margin-left:140px;height:20px;border-bottom:1px solid var(--line);margin-bottom:8px}
+.tl-tick{position:absolute;top:0;transform:translateX(-50%);font-size:.72em;color:var(--ink-3);font-weight:500}
+.tl-tick::after{content:"";position:absolute;left:50%;top:18px;width:1px;height:6px;background:var(--line-2)}
+.tl-row{display:flex;align-items:center;min-height:40px}
+.tl-name{width:140px;flex-shrink:0;font-size:.86em;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;padding-right:10px}
+.tl-track{position:relative;flex:1;height:30px;background:repeating-linear-gradient(90deg,transparent,transparent calc(var(--half) - 1px),var(--line) calc(var(--half) - 1px),var(--line) var(--half));border-radius:6px}
+.tl-blk{position:absolute;top:3px;height:24px;min-width:50px;border-radius:6px;border:1px solid;display:flex;align-items:center;justify-content:center;padding:0 4px;font-size:.72em;font-weight:600;font-variant-numeric:tabular-nums;white-space:nowrap;overflow:hidden}
+.tl-blk.done{opacity:.5}
+.tl-blk.overlap{box-shadow:0 0 0 2px var(--danger)}
+.tl-now{position:absolute;top:-4px;bottom:-4px;width:2px;background:var(--danger);z-index:5}
+.tl-now::before{content:"";position:absolute;top:-3px;left:-3px;width:8px;height:8px;border-radius:50%;background:var(--danger)}
+.s-prima{background:var(--s-prima-bg);color:var(--s-prima);border-color:var(--s-prima-l)}
+.s-seconda{background:var(--s-seconda-bg);color:var(--s-seconda);border-color:var(--s-seconda-l)}
+.s-pranzo{background:var(--s-pranzo-bg);color:var(--s-pranzo);border-color:var(--s-pranzo-l)}
+.s-terza{background:var(--s-terza-bg);color:var(--s-terza);border-color:var(--s-terza-l)}
+.tl-legend{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
+.chip{font-size:.76em;font-weight:600;padding:4px 10px;border-radius:999px;display:inline-flex;align-items:center;gap:6px;border:1px solid}
+.tl-empty{color:var(--ink-3);text-align:center;padding:26px 0;font-size:.95em}
+
+.filters{display:flex;align-items:center;gap:9px}
+.filters select{padding:8px 12px;border:1px solid var(--line-2);border-radius:var(--r-s);background:#fff;font-family:var(--font);font-weight:500;color:var(--green-d);cursor:pointer}
+
+.people{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:14px}
+.pcard{border:1px solid var(--line);border-radius:var(--r);padding:14px 15px;transition:box-shadow .2s,border-color .2s}
+.pcard:hover{box-shadow:var(--sh);border-color:var(--line-2)}
+.pcard.is-paused{border-color:var(--green-100);box-shadow:0 0 0 1px var(--green-100)}
+.pc-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:12px}
+.who{display:flex;align-items:center;gap:10px;min-width:0}
+.avatar{width:36px;height:36px;border-radius:50%;background:var(--green-50);color:var(--green-d);display:flex;align-items:center;justify-content:center;font-size:.95em;flex-shrink:0}
+.pname{font-weight:600;font-size:.98em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pstate{font-size:.72em;font-weight:600;padding:2px 9px;border-radius:999px;white-space:nowrap}
+.st-corso{background:var(--green-50);color:var(--green-d)}
+.st-prog{background:var(--info-bg);color:var(--info)}
+.st-fine{background:#EEF0EF;color:var(--ink-3)}
+.icon-btn{background:none;border:none;cursor:pointer;color:var(--ink-3);width:30px;height:30px;border-radius:7px;font-size:.95em;transition:background .2s,color .2s}
+.icon-btn:hover{background:var(--danger-bg);color:var(--danger)}
+.slots{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.slot{border:1px solid var(--line);border-radius:var(--r-s);padding:8px 9px;position:relative;min-height:58px}
+.slot-l{font-size:.68em;font-weight:600;text-transform:uppercase;letter-spacing:.03em;color:var(--ink-3);margin-bottom:5px;display:flex;align-items:center;gap:5px}
+.slot-l i{font-size:.95em}
+.slot-b{display:flex;align-items:center;gap:7px}
+.slot input[type=checkbox]{width:16px;height:16px;accent-color:var(--green);cursor:pointer;flex-shrink:0}
+.slot input[type=checkbox]:disabled{opacity:.4;cursor:not-allowed}
+.time-value{cursor:pointer;font-weight:600;font-size:.95em}
+.slot.done .time-value{text-decoration:line-through;color:var(--ink-3)}
+.slot .dash{color:var(--ink-3);cursor:pointer;font-weight:600}
+.slot.active{border-color:var(--green);background:var(--green-50)}
+.slot .edit{position:absolute;left:6px;right:6px;bottom:7px;padding:5px 7px;font-family:var(--font);font-size:.9em;border:1px solid var(--green);border-radius:6px;outline:none;box-shadow:0 0 0 3px rgba(0,140,69,.15)}
+.back-now{margin-top:6px;font-size:.72em;font-weight:600;color:var(--green-d);background:none;border:none;cursor:pointer;padding:0;display:inline-flex;align-items:center;gap:4px}
+.back-now:hover{text-decoration:underline}
+.people-empty{grid-column:1/-1;text-align:center;color:var(--ink-3);padding:34px 0;font-size:1.02em}
+
+.reg{margin-top:4px}
+.reg summary{cursor:pointer;font-weight:600;color:var(--green-d);font-size:1.05em;display:flex;align-items:center;gap:9px;list-style:none}
+.reg summary::-webkit-details-marker{display:none}
+.reg summary .chev{transition:transform .2s;margin-left:auto;color:var(--ink-3)}
+.reg[open] summary .chev{transform:rotate(180deg)}
+.reg ol{margin:16px 0 0;padding:0;list-style:none;counter-reset:r}
+.reg li{margin-bottom:11px;line-height:1.65;position:relative;padding-left:36px;counter-increment:r;font-size:.93em;color:var(--ink-2)}
+.reg li::before{content:counter(r);position:absolute;left:0;top:0;background:var(--green);color:#fff;width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:600;font-size:.82em}
+
+.modal{display:none;position:fixed;inset:0;z-index:1050;overflow:auto;background:rgba(20,34,28,.65);backdrop-filter:blur(4px);padding:18px}
+.modal.show{display:flex;align-items:flex-start;justify-content:center}
+.modal-card{background:var(--card);margin-top:6vh;padding:30px 32px;border-radius:var(--r-l);width:100%;max-width:560px;box-shadow:var(--sh-2);position:relative;animation:pop .35s cubic-bezier(.165,.84,.44,1)}
+@keyframes pop{from{transform:translateY(24px);opacity:0}to{transform:translateY(0);opacity:1}}
+.close{position:absolute;top:14px;right:18px;font-size:30px;font-weight:300;color:var(--ink-3);cursor:pointer;line-height:1;background:none;border:none}
+.close:hover{color:var(--ink)}
+.modal-card h3{color:var(--green-d);font-size:1.3em;text-align:center;font-weight:600;margin-bottom:22px;display:flex;align-items:center;justify-content:center;gap:9px}
+.field{margin-bottom:15px}
+.field label{display:block;margin-bottom:6px;font-weight:500;font-size:.9em;display:flex;align-items:center;gap:7px}
+.field label i{color:var(--green)}
+.field input,.field select{width:100%;padding:12px 14px;border:1px solid var(--line-2);border-radius:var(--r-s);font:inherit;font-size:.95em;background:#fdfdfd}
+.field input:focus,.field select:focus{outline:none;border-color:var(--green);box-shadow:0 0 0 3px rgba(0,140,69,.15)}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.modal-actions{display:flex;justify-content:flex-end;gap:11px;margin-top:24px;padding-top:18px;border-top:1px solid var(--line)}
+
+@media(max-width:560px){
+  body{padding:16px 11px 50px}
+  .brand h1{font-size:1.2em}
+  .topbar-r{width:100%;justify-content:space-between}
+  .section{padding:16px 14px}
+  .slots{grid-template-columns:1fr 1fr}
+  .grid2{grid-template-columns:1fr}
+  .modal-card{padding:24px 18px}
+}
+</style>
+</head>
+<body>
+
+<div id="auth-modal" class="auth-modal">
+  <div class="auth-card">
+    <h3><i class="fas fa-shield-halved"></i> Accesso</h3>
+    <p class="sub">Inserisci il Personal Access Token di GitHub (scope <code>gist</code>) e l'ID del Gist.<br><a href="https://github.com/settings/tokens/new?scopes=gist&description=RLGreenPauseAppToken" target="_blank" rel="noopener noreferrer">Crea un nuovo token</a></p>
+    <form id="auth-form">
+      <label for="auth-token-input"><i class="fas fa-key"></i> Personal Access Token</label>
+      <input type="password" id="auth-token-input" name="github_token" required placeholder="ghp_xxxxxxxxxxxxxxxxxxxx">
+      <label for="auth-gist-id-input"><i class="fab fa-github"></i> Gist ID</label>
+      <input type="text" id="auth-gist-id-input" name="gist_id" required placeholder="1a2b3c4d5e6f7g8h9i0j">
+      <button type="submit" class="btn btn-primary" style="width:100%;justify-content:center"><i class="fas fa-right-to-bracket"></i> Procedi e carica dati</button>
+    </form>
+  </div>
+</div>
+
+<div id="app">
+<div class="wrap">
+
+  <div class="topbar">
+    <div class="brand">
+      <div class="logo"><i class="fas fa-mug-hot"></i></div>
+      <div>
+        <h1>Gestione pause</h1>
+        <div class="tag">RL Green &middot; turno di oggi</div>
+      </div>
+    </div>
+    <div class="topbar-r">
+      <div id="clock"><i class="fas fa-clock"></i> --:--:--</div>
+      <button id="add-pause-btn" class="btn btn-primary"><i class="fas fa-user-plus"></i> Aggiungi pausa</button>
+    </div>
+  </div>
+
+  <div id="kpi-row" class="kpis"></div>
+  <div id="alerts" class="alerts"></div>
+
+  <div class="section">
+    <div class="section-head">
+      <h2><i class="fas fa-stream"></i> Timeline del turno</h2>
+      <span class="muted" id="tl-range"></span>
+    </div>
+    <div class="tl-scroll"><div id="timeline" class="tl"></div></div>
+    <div class="tl-legend">
+      <span class="chip s-prima">Prima</span>
+      <span class="chip s-seconda">Seconda</span>
+      <span class="chip s-pranzo">Pranzo</span>
+      <span class="chip s-terza">Terza (8h)</span>
+      <span class="chip" style="background:#fff;color:var(--danger);border-color:var(--danger)"><i class="fas fa-triangle-exclamation"></i> sovrapposizione</span>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-head">
+      <h2><i class="fas fa-users"></i> Pianificazione</h2>
+      <div class="filters">
+        <label for="filter-select" class="muted"><i class="fas fa-filter"></i></label>
+        <select id="filter-select">
+          <option value="tutti">Tutti</option>
+          <option value="in_corso">In corso</option>
+          <option value="conclusa">Concluse</option>
+        </select>
+      </div>
+    </div>
+    <div id="pause-list" class="people"></div>
+  </div>
+
+  <div class="section">
+    <details class="reg">
+      <summary><i class="fas fa-book-open"></i> Regolamento gestione pause <i class="fas fa-chevron-down chev"></i></summary>
+      <ol>
+        <li>Ogni giorno ad inizio turno, occorre programmare le pause trascorse le due ore lavorative, con intervalli di 15 minuti, senza lasciare slot scoperti.</li>
+        <li>Non è possibile sovrapporsi nella selezione dell'orario della pausa se i moderatori attivi sono inferiori a 5.</li>
+        <li>È possibile sovrapporsi nella selezione dell'orario della pausa se i moderatori attivi sono superiori a 5; se i moderatori in turno sono 5, è consentita una sola sovrapposizione. Il moderatore può anche decidere volontariamente di andare in pausa dopo le 3 ore.</li>
+        <li>Se la pausa precedentemente inserita dovesse slittare, aggiornare l'orario (doppio clic sull'orario per modificare) e scrivere in chat così da permettere ad un collega libero di sostituirsi a voi. La durata rimane invariata (15 min / 1h pranzo).</li>
+        <li>Nel limite del possibile, soprattutto quando si è solo in tre in turno, evitare di andare in pausa consecutivamente, lasciare sempre qualche minuto di stacco.</li>
+        <li>Le pause pranzo (1h) devono essere organizzate verificando il numero di colleghi in turno, il numero di moderatori attivi non deve essere inferiore a 4. Tuttavia è possibile, in caso di necessità, concordare la pausa con il II livello. In caso di flussi alti coordinarsi con i colleghi e i supervisori.</li>
+      </ol>
+    </details>
+  </div>
+
+</div>
+</div>
+
+<div id="add-pause-modal" class="modal">
+  <div class="modal-card">
+    <button id="close-modal-btn" class="close" title="Chiudi">&times;</button>
+    <h3><i class="far fa-clock"></i> Pianifica le pause</h3>
+    <form id="add-pause-form">
+      <div class="field">
+        <label for="modal-operatore"><i class="fas fa-user"></i> Nome e cognome</label>
+        <select id="modal-operatore" name="operatore" required>
+          <option value="" disabled selected>Seleziona moderatore</option>
+          <option>Caruso Stefania</option>
+          <option>Caruso Erika</option>
+          <option>Furnari Alfredo</option>
+          <option>Gamiddo Marialorenza</option>
+          <option>Leocata Rita</option>
+          <option>Lo Cicero Laura</option>
+          <option>Mangani Federica</option>
+          <option>Mazzaglia Cinzia</option>
+          <option>Paparo Tiziana</option>
+          <option>Pappalardo Simona</option>
+          <option>Perri Marilisa</option>
+          <option>Romano Roberta</option>
+          <option>Sciacca Rosa</option>
+          <option>Venuto Mariannunziata</option>
+        </select>
+      </div>
+      <div class="grid2">
+        <div class="field"><label for="modal-prima-pausa"><i class="fas fa-mug-saucer"></i> Prima pausa (15 min)</label><input type="time" id="modal-prima-pausa" name="prima_pausa"></div>
+        <div class="field"><label for="modal-seconda-pausa"><i class="fas fa-mug-hot"></i> Seconda pausa (15 min)</label><input type="time" id="modal-seconda-pausa" name="seconda_pausa"></div>
+        <div class="field"><label for="modal-pausa-pranzo"><i class="fas fa-utensils"></i> Pausa pranzo (1h)</label><input type="time" id="modal-pausa-pranzo" name="pausa_pranzo"></div>
+        <div class="field"><label for="modal-terza-pausa"><i class="fas fa-hourglass-half"></i> Terza pausa (15 min, 8h)</label><input type="time" id="modal-terza-pausa" name="terza_pausa"></div>
+      </div>
+      <div class="modal-actions">
+        <button type="button" id="cancel-modal-btn" class="btn btn-ghost">Annulla</button>
+        <button type="submit" class="btn btn-primary"><i class="fas fa-floppy-disk"></i> Salva</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  const GIST_FILENAME = "rlGreenPauseData.json";
+  const GIST_DESCRIPTION = "RL Green Team Pause Schedule Data";
+  let GITHUB_TOKEN_FROM_USER = null;
+  let GIST_ID_FROM_USER = null;
+
+  const $ = id => document.getElementById(id);
+  const addPauseBtn=$('add-pause-btn'), modal=$('add-pause-modal'), closeModalBtn=$('close-modal-btn'),
+        cancelModalBtn=$('cancel-modal-btn'), addPauseForm=$('add-pause-form'), filterSelect=$('filter-select'),
+        clockElement=$('clock'), listEl=$('pause-list'), kpiEl=$('kpi-row'), alertsEl=$('alerts'),
+        timelineEl=$('timeline'), tlRange=$('tl-range');
+  const authModal=$('auth-modal'), authForm=$('auth-form'), authTokenInput=$('auth-token-input'),
+        authGistIdInput=$('auth-gist-id-input'), mainApp=$('app');
+
+  let pauseData = [];
+  let tickId, syncId, isEditing=false, isSyncing=false;
+
+  const PAUSE_DURATIONS = { prima_pausa:15, seconda_pausa:15, pausa_pranzo:60, terza_pausa:15 };
+  const MIN_PRANZO = 4;
+  const MIN_OVERLAP = 5;
+  const SLOTS = [
+    { key:'prima_pausa',  label:'Prima',   icon:'fa-mug-saucer',     cls:'s-prima' },
+    { key:'seconda_pausa',label:'Seconda', icon:'fa-mug-hot',        cls:'s-seconda' },
+    { key:'pausa_pranzo', label:'Pranzo',  icon:'fa-utensils',       cls:'s-pranzo' },
+    { key:'terza_pausa',  label:'Terza',   icon:'fa-hourglass-half', cls:'s-terza' }
+  ];
+  const SLOT_BY_KEY = Object.fromEntries(SLOTS.map(s => [s.key, s]));
+  const OPERATOR_ICONS = {
+    "Caruso Stefania":"fas fa-star","Caruso Erika":"fas fa-feather","Furnari Alfredo":"fas fa-laptop-code",
+    "Gamiddo Marialorenza":"fas fa-apple-whole","Leocata Rita":"fas fa-heart","Lo Cicero Laura":"fas fa-leaf",
+    "Mangani Federica":"fas fa-sun","Mazzaglia Cinzia":"fas fa-moon","Paparo Tiziana":"fas fa-headphones",
+    "Pappalardo Simona":"fas fa-palette","Perri Marilisa":"fas fa-gamepad","Romano Roberta":"fas fa-book-open",
+    "Sciacca Rosa":"fas fa-spa","Venuto Mariannunziata":"fas fa-paper-plane","default":"fas fa-user-clock"
+  };
+
+  let serverTimeAtLastSync=null, localTimeAtLastSync=null;
+  function updateServerTime(resp){ try{ const d=resp.headers.get('Date'); if(d){ serverTimeAtLastSync=new Date(d); localTimeAtLastSync=new Date(); } }catch(e){} }
+  function getNow(){ if(serverTimeAtLastSync&&localTimeAtLastSync){ return new Date(Date.now()+(serverTimeAtLastSync.getTime()-localTimeAtLastSync.getTime())); } return new Date(); }
+
+  function generateId(){ return 'p_'+Date.now()+'_'+Math.random().toString(36).slice(2,7); }
+  function ensureShape(item){
+    if(!item.id) item.id=generateId();
+    if(!item.completed||typeof item.completed!=='object') item.completed={};
+    if(!item.actual_start_times||typeof item.actual_start_times!=='object') item.actual_start_times={};
+    SLOTS.forEach(s=>{ if(item[s.key]==null) item[s.key]=''; if(item.completed[s.key]==null) item.completed[s.key]=false; });
+    return item;
+  }
+  function esc(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;'); }
+  function pad(n){ return String(n).padStart(2,'0'); }
+  function hhmm(d){ return pad(d.getHours())+':'+pad(d.getMinutes()); }
+  function initials(name){ const p=(name||'').trim().split(/\s+/); return ((p[0]||'')[0]||'')+((p[1]||'')[0]||''); }
+  function timeToDate(t){ if(!t) return null; const m=String(t).split(':'); const h=+m[0], mi=+m[1]; if(isNaN(h)||isNaN(mi)) return null; const d=getNow(); d.setHours(h,mi,0,0); return d; }
+  function endOf(t,key){ const s=timeToDate(t); if(!s) return null; return new Date(s.getTime()+(PAUSE_DURATIONS[key]||15)*60000); }
+
+  function getInstances(includeCompleted){
+    const arr=[];
+    pauseData.forEach(item=>{
+      SLOTS.forEach(s=>{
+        const t=item[s.key]; if(!t) return;
+        const start=timeToDate(t); if(!start) return;
+        const completed=!!(item.completed&&item.completed[s.key]);
+        if(!includeCompleted&&completed) return;
+        arr.push({ id:item.id+'_'+s.key, itemId:item.id, name:item.operatore||'', slot:s, start,
+                   end:new Date(start.getTime()+PAUSE_DURATIONS[s.key]*60000), completed, isLunch:s.key==='pausa_pranzo' });
+      });
+    });
+    return arr;
+  }
+  function activeInstances(now){ return getInstances(false).filter(i=> now>=i.start && now<i.end); }
+
+  // ---------- Gist ----------
+  async function loadDataFromGist(){
+    if(!GITHUB_TOKEN_FROM_USER||!GIST_ID_FROM_USER){ alert("ERRORE: Token o ID Gist mancanti."); return false; }
+    try{
+      const resp=await fetch(`https://api.github.com/gists/${GIST_ID_FROM_USER}`,{ headers:{'Authorization':`token ${GITHUB_TOKEN_FROM_USER}`,'Accept':'application/vnd.github.v3+json','If-None-Match':''} });
+      updateServerTime(resp);
+      if(resp.status===401||resp.status===403){ alert(`Autenticazione fallita (${resp.status}). Controlla il token.`); sessionStorage.removeItem('github_token'); return false; }
+      if(resp.status===404){ alert(`Gist '${GIST_ID_FROM_USER}' non trovato.`); sessionStorage.removeItem('gist_id'); return false; }
+      if(!resp.ok){ throw new Error(`${resp.status} ${resp.statusText}`); }
+      const gist=await resp.json();
+      if(gist.files&&gist.files[GIST_FILENAME]&&gist.files[GIST_FILENAME].content){
+        const c=gist.files[GIST_FILENAME].content.trim();
+        pauseData = c==="" ? [] : JSON.parse(c);
+        if(!Array.isArray(pauseData)) pauseData=[];
+      } else pauseData=[];
+      pauseData.forEach(ensureShape);
+      return true;
+    }catch(e){ console.error(e); alert(`Errore nel caricamento dei dati dal Gist:\n${e.message}`); return false; }
+  }
+  async function saveDataToGist(){
+    if(!GITHUB_TOKEN_FROM_USER||!GIST_ID_FROM_USER){ alert("ERRORE: Token o ID Gist mancanti."); return; }
+    try{
+      const payload={ description:GIST_DESCRIPTION, files:{ [GIST_FILENAME]:{ content:JSON.stringify(pauseData,null,2) } } };
+      const resp=await fetch(`https://api.github.com/gists/${GIST_ID_FROM_USER}`,{ method:'PATCH', headers:{'Authorization':`token ${GITHUB_TOKEN_FROM_USER}`,'Accept':'application/vnd.github.v3+json','Content-Type':'application/json'}, body:JSON.stringify(payload) });
+      updateServerTime(resp);
+      if(!resp.ok){ const ed=await resp.json().catch(()=>({message:'errore sconosciuto'})); throw new Error(`${resp.status} ${resp.statusText}: ${ed.message}`); }
+    }catch(e){ console.error(e); alert(`Errore nel salvataggio sul Gist:\n${e.message}\nLe modifiche potrebbero non essere state salvate.`); }
+  }
+
+  // ---------- Engine: KPI + alerts ----------
+  function inTurnoCount(){ return pauseData.filter(it=> SLOTS.some(s=>it[s.key])).length; }
+
+  function computeAlerts(){
+    const inst=getInstances(true);
+    const inTurno=inTurnoCount();
+    if(!inst.length) return [{level:'ok', text:'Nessuna pausa pianificata. Aggiungi le pause per attivare i controlli sul regolamento.'}];
+    let pts=[]; inst.forEach(i=>{ pts.push(+i.start); pts.push(+i.end); });
+    pts=[...new Set(pts)].sort((a,b)=>a-b);
+    const dangers=[], warns=[];
+    for(let k=0;k<pts.length-1;k++){
+      const a=pts[k], b=pts[k+1], mid=(a+b)/2;
+      const cover=inst.filter(i=> +i.start<=mid && mid<+i.end);
+      const inPausa=cover.length; const attivi=inTurno-inPausa;
+      const lunch=cover.some(i=>i.isLunch);
+      if(lunch && attivi<MIN_PRANZO) dangers.push({a,b,attivi});
+      if(inPausa>=2 && attivi<MIN_OVERLAP) warns.push({a,b,attivi});
+    }
+    const merge=rows=>{ const out=[]; rows.forEach(r=>{ const last=out[out.length-1]; if(last&&r.a<=last.b){ last.b=Math.max(last.b,r.b); last.attivi=Math.min(last.attivi,r.attivi);} else out.push({...r}); }); return out; };
+    const res=[];
+    merge(dangers).forEach(r=> res.push({level:'danger', text:`A pranzo, tra le ${hhmm(new Date(r.a))} e le ${hhmm(new Date(r.b))}, resterebbero solo ${r.attivi} moderatori attivi (minimo ${MIN_PRANZO}).`}));
+    merge(warns).forEach(r=> res.push({level:'warn', text:`Sovrapposizione tra le ${hhmm(new Date(r.a))} e le ${hhmm(new Date(r.b))}: con ${r.attivi} moderatori attivi non è consentita (servono almeno ${MIN_OVERLAP}).`}));
+    if(!res.length) return [{level:'ok', text:'Tutto in regola: nessuna sovrapposizione critica e copertura pranzo rispettata.'}];
+    return res.slice(0,5);
+  }
+
+  function renderKPIs(){
+    const now=getNow();
+    const active=activeInstances(now);
+    const persone=new Set(active.map(i=>i.itemId));
+    let totalSlots=0, lunchSlots=0, completedSlots=0;
+    pauseData.forEach(it=> SLOTS.forEach(s=>{ if(it[s.key]){ totalSlots++; if(s.key==='pausa_pranzo') lunchSlots++; if(it.completed&&it.completed[s.key]) completedSlots++; } }));
+    const pct = totalSlots ? Math.round(completedSlots/totalSlots*100) : 0;
+    const inPausaNames=[...persone].map(id=>{ const it=pauseData.find(p=>p.id===id); return it?it.operatore.split(' ')[0]:''; }).filter(Boolean);
+    const fut=getInstances(false).filter(i=> i.start>now).sort((x,y)=>x.start-y.start);
+    const nextV = fut.length ? hhmm(fut[0].start) : '—';
+    const nextS = fut.length ? `${fut[0].name.split(' ')[0]}, ${fut[0].slot.label.toLowerCase()}` : 'nessuna in programma';
+    const cards=[
+      {l:'Pause inserite oggi', v:String(totalSlots), s:`di cui ${lunchSlots} pranzo`},
+      {l:'In pausa ora', v:String(persone.size), s: persone.size ? inPausaNames.slice(0,3).join(', ') : 'nessuno'},
+      {l:'Pause concluse', v:`${completedSlots} / ${totalSlots}`, s:`${pct}% completate`},
+      {l:'Prossima pausa', v:nextV, s:nextS}
+    ];
+    kpiEl.innerHTML=cards.map(c=>`<div class="kpi"><div class="k-l">${esc(c.l)}</div><div class="k-v">${esc(c.v)}</div><div class="k-s">${esc(c.s)}</div></div>`).join('');
+  }
+
+  function renderAlerts(){
+    const al=computeAlerts();
+    const ic={ok:'fa-circle-check',warn:'fa-triangle-exclamation',danger:'fa-circle-exclamation'};
+    alertsEl.innerHTML=al.map(a=>`<div class="alert ${a.level}"><i class="fas ${ic[a.level]}"></i><span>${esc(a.text)}</span></div>`).join('');
+  }
+
+  // ---------- Timeline ----------
+  function renderTimeline(){
+    const inst=getInstances(true);
+    if(!inst.length){ timelineEl.innerHTML='<div class="tl-empty">Nessuna pausa pianificata da mostrare.</div>'; tlRange.textContent=''; return; }
+    let min=Math.min(...inst.map(i=>+i.start)), max=Math.max(...inst.map(i=>+i.end));
+    min-=30*60000; max+=30*60000;
+    const start=new Date(min); start.setMinutes(start.getMinutes()<30?0:30,0,0);
+    const end=new Date(max); if(end.getMinutes()>30) end.setHours(end.getHours()+1,0,0,0); else if(end.getMinutes()>0) end.setMinutes(30,0,0);
+    const total=end-start; const totalMin=total/60000;
+    tlRange.textContent=`${hhmm(start)} – ${hhmm(end)}`;
+    const overlapIds=new Set();
+    for(let i=0;i<inst.length;i++) for(let j=i+1;j<inst.length;j++){ if(inst[i].start<inst[j].end && inst[j].start<inst[i].end){ overlapIds.add(inst[i].id); overlapIds.add(inst[j].id);} }
+
+    let axis='<div class="tl-axis">';
+    for(let t=+start;t<=+end;t+=30*60000){ const p=(t-start)/total*100; const d=new Date(t); const lab=d.getMinutes()===0?hhmm(d):''; if(lab) axis+=`<span class="tl-tick" style="left:${p}%">${lab}</span>`; }
+    axis+='</div>';
+
+    const rows=pauseData.filter(it=> SLOTS.some(s=>it[s.key]))
+      .sort((a,b)=>(a.operatore||'').localeCompare(b.operatore||'','it'));
+    const halfPct=(30/totalMin)*100;
+    let body='';
+    rows.forEach(it=>{
+      let blocks='';
+      SLOTS.forEach(s=>{ const t=it[s.key]; if(!t) return; const st=timeToDate(t); const en=endOf(t,s.key); if(!st||!en) return;
+        const left=(st-start)/total*100; let w=(en-st)/total*100; if(w<5) w=5;
+        const id=it.id+'_'+s.key; const done=it.completed&&it.completed[s.key];
+        blocks+=`<div class="tl-blk ${s.cls}${done?' done':''}${overlapIds.has(id)?' overlap':''}" style="left:${left}%;width:${w}%" title="${esc(it.operatore)} · ${s.label} ${t}">${t}</div>`;
+      });
+      const now=getNow(); let nowLine='';
+      if(now>=start&&now<=end){ nowLine=`<div class="tl-now" style="left:${(now-start)/total*100}%"></div>`; }
+      body+=`<div class="tl-row"><div class="tl-name">${esc(it.operatore)}</div><div class="tl-track" style="--half:${halfPct}%">${blocks}${nowLine}</div></div>`;
+    });
+    timelineEl.innerHTML=axis+body;
+  }
+
+  // ---------- People list ----------
+  function rowConcluded(it){ const sc=SLOTS.filter(s=>it[s.key]); return sc.length>0 && sc.every(s=>it.completed&&it.completed[s.key]); }
+  function rowActive(it){ const now=getNow(); return SLOTS.some(s=>{ const t=it[s.key]; if(!t||(it.completed&&it.completed[s.key])) return false; const st=timeToDate(t); const en=endOf(t,s.key); return st&&en&&now>=st&&now<en; }); }
+
+  function renderList(){
+    const f=filterSelect.value;
+    let data=pauseData.slice();
+    if(f==='in_corso') data=data.filter(it=>!rowConcluded(it));
+    else if(f==='conclusa') data=data.filter(it=>rowConcluded(it));
+    if(!data.length){ listEl.innerHTML='<div class="people-empty"><i class="far fa-face-smile-wink"></i> Nessuna pausa da mostrare. Aggiungi una pausa per iniziare.</div>'; return; }
+    data.sort((a,b)=>(a.operatore||'').localeCompare(b.operatore||'','it'));
+    const now=getNow();
+    listEl.innerHTML=data.map(it=>{
+      ensureShape(it);
+      const active=rowActive(it), concl=rowConcluded(it);
+      let state = active?'<span class="pstate st-corso">in pausa</span>' : concl?'<span class="pstate st-fine">concluse</span>' : (SLOTS.some(s=>it[s.key])?'<span class="pstate st-prog">in turno</span>':'');
+      const icon=OPERATOR_ICONS[it.operatore]||OPERATOR_ICONS.default;
+      const slots=SLOTS.map(s=>{
+        const t=it[s.key]; const done=!!(it.completed&&it.completed[s.key]);
+        let act=false; if(t&&!done){ const st=timeToDate(t), en=endOf(t,s.key); act=st&&en&&now>=st&&now<en; }
+        let inner;
+        if(t){ inner=`<div class="slot-b"><input type="checkbox" data-slot="${s.key}" ${done?'checked':''} title="Segna conclusa"><span class="time-value">${t}</span></div>`+(act?`<button class="back-now" data-action="back" data-slot="${s.key}"><i class="fas fa-arrow-right-to-bracket"></i> rientra ora</button>`:''); }
+        else inner=`<div class="slot-b"><span class="dash">—</span></div>`;
+        return `<div class="slot ${s.cls}${done?' done':''}${act?' active':''}" data-slot="${s.key}"><div class="slot-l"><i class="fas ${s.icon}"></i> ${s.label}</div>${inner}</div>`;
+      }).join('');
+      return `<div class="pcard${active?' is-paused':''}" data-id="${it.id}">
+        <div class="pc-head"><div class="who"><span class="avatar"><i class="${icon}"></i></span><span class="pname">${esc(it.operatore)}</span>${state}</div>
+        <button class="icon-btn" data-action="delete" title="Elimina"><i class="fas fa-trash-can"></i></button></div>
+        <div class="slots">${slots}</div></div>`;
+    }).join('');
+  }
+
+  function renderAll(){ renderKPIs(); renderAlerts(); renderTimeline(); renderList(); }
+  function tick(){ const n=getNow(); clockElement.innerHTML=`<i class="fas fa-clock"></i> ${pad(n.getHours())}:${pad(n.getMinutes())}:${pad(n.getSeconds())}`; renderKPIs(); renderAlerts(); renderTimeline(); if(!isEditing && !modal.classList.contains('show')) renderList(); }
+
+  // ---------- Modal ----------
+  function openModal(){ addPauseForm.reset(); modal.classList.add('show'); }
+  function closeModal(){ modal.classList.remove('show'); }
+
+  // ---------- Actions ----------
+  async function handleAdd(e){
+    e.preventDefault();
+    const fd=new FormData(addPauseForm);
+    const operatore=(fd.get('operatore')||'').trim();
+    if(!operatore){ alert('Seleziona un moderatore.'); return; }
+    const item=ensureShape({ id:generateId(), operatore,
+      prima_pausa:fd.get('prima_pausa')||'', seconda_pausa:fd.get('seconda_pausa')||'',
+      pausa_pranzo:fd.get('pausa_pranzo')||'', terza_pausa:fd.get('terza_pausa')||'',
+      completed:{}, actual_start_times:{} });
+    pauseData.push(item); closeModal(); renderAll(); await saveDataToGist();
+  }
+  async function handleDelete(id){
+    const it=pauseData.find(p=>p.id===id);
+    if(!confirm(`Eliminare la pianificazione di ${it?it.operatore:'questo moderatore'}?`)) return;
+    pauseData=pauseData.filter(p=>p.id!==id); renderAll(); await saveDataToGist();
+  }
+  async function toggleComplete(id,slot,checked){
+    const it=pauseData.find(p=>p.id===id); if(!it) return; ensureShape(it);
+    it.completed[slot]=checked; renderAll(); await saveDataToGist();
+  }
+  async function backNow(id,slot){
+    const it=pauseData.find(p=>p.id===id); if(!it) return; ensureShape(it);
+    it.completed[slot]=true; renderAll(); await saveDataToGist();
+  }
+  function startEdit(slotEl,id,slot){
+    if(slotEl.querySelector('.edit')) return;
+    const it=pauseData.find(p=>p.id===id); if(!it) return;
+    isEditing=true;
+    const input=document.createElement('input'); input.type='time'; input.className='edit'; input.value=it[slot]||'';
+    slotEl.appendChild(input); input.focus();
+    let done=false;
+    const finish=async save=>{ if(done) return; done=true; isEditing=false; const v=input.value;
+      if(save){ const old=it[slot]||''; if(v!==old){ it[slot]=v; if(it.completed) it.completed[slot]=false; renderAll(); await saveDataToGist(); return; } }
+      renderList(); };
+    input.addEventListener('blur',()=>finish(true));
+    input.addEventListener('keydown',ev=>{ if(ev.key==='Enter'){ev.preventDefault();finish(true);} else if(ev.key==='Escape'){ev.preventDefault();finish(false);} });
+  }
+
+  listEl.addEventListener('change',e=>{ const cb=e.target.closest('input[type=checkbox][data-slot]'); if(!cb) return; const c=cb.closest('.pcard'); if(c) toggleComplete(c.dataset.id, cb.dataset.slot, cb.checked); });
+  listEl.addEventListener('dblclick',e=>{ const sl=e.target.closest('.slot[data-slot]'); if(!sl) return; const c=sl.closest('.pcard'); if(c) startEdit(sl, c.dataset.id, sl.dataset.slot); });
+  listEl.addEventListener('click',e=>{
+    const del=e.target.closest('[data-action="delete"]'); if(del){ const c=del.closest('.pcard'); if(c) handleDelete(c.dataset.id); return; }
+    const back=e.target.closest('[data-action="back"]'); if(back){ const c=back.closest('.pcard'); if(c) backNow(c.dataset.id, back.dataset.slot); return; }
+  });
+
+  async function periodicSync(){
+    if(isSyncing||isEditing||modal.classList.contains('show')) return;
+    isSyncing=true;
+    try{ if(await loadDataFromGist()) renderAll(); } finally{ isSyncing=false; }
+  }
+
+  function startApp(){
+    authModal.style.display='none'; mainApp.style.display='block';
+    renderAll(); tick();
+    if(tickId) clearInterval(tickId); tickId=setInterval(tick,1000);
+    if(syncId) clearInterval(syncId); syncId=setInterval(periodicSync,30000);
+  }
+  async function doAuth(token,gistId){ GITHUB_TOKEN_FROM_USER=token; GIST_ID_FROM_USER=gistId; if(await loadDataFromGist()){ sessionStorage.setItem('github_token',token); sessionStorage.setItem('gist_id',gistId); startApp(); } }
+
+  authForm.addEventListener('submit',async e=>{ e.preventDefault(); const t=authTokenInput.value.trim(), g=authGistIdInput.value.trim(); if(!t||!g){ alert("Inserisci sia il token che l'ID del Gist."); return; } await doAuth(t,g); });
+  addPauseBtn.addEventListener('click',openModal);
+  closeModalBtn.addEventListener('click',closeModal);
+  cancelModalBtn.addEventListener('click',closeModal);
+  addPauseForm.addEventListener('submit',handleAdd);
+  filterSelect.addEventListener('change',renderList);
+  modal.addEventListener('click',e=>{ if(e.target===modal) closeModal(); });
+
+  (async function init(){
+    const t=sessionStorage.getItem('github_token'), g=sessionStorage.getItem('gist_id');
+    if(t&&g){ authTokenInput.value=t; authGistIdInput.value=g; await doAuth(t,g); }
+  })();
+});
+</script>
+</body>
+</html>
